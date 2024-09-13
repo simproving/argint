@@ -1,11 +1,26 @@
 table {
     border: none;
+    counter-reset: rowNumber;
+    border-collapse: collapse;
+
 }
 
 td, input {
     width: 70px;
     padding: 0;
   }
+  tr{
+    padding: 0;
+
+  }
+
+table tr::before {
+    display: table-cell;
+    counter-increment: rowNumber;
+    content: counter(rowNumber) ".";
+    padding-right: 0.3em;
+    text-align: right;
+}
 
 /* override styles when printing */
 @media print {
@@ -14,6 +29,14 @@ td, input {
         width: 70px;
         padding: 0;
         border: none;
+    }
+    table tr::before {
+        display: none;
+    }
+    
+    @page {
+        size: auto;   /* auto is the initial value */
+        margin: 0;  /* this affects the margin in the printer settings */
     }
   
   }
