@@ -51,7 +51,7 @@ $('input').keypress(function(e) {
     var totalSum = tableValues.reduce((sum, value) => sum + value, 0);
     var filledCellsCount = tableValues.length;
     $total = $('#total');
-    $total.text("Total: " + totalSum + " (" + filledCellsCount + " bucati)");
+    $total.text("Total: " + totalSum + " lei (" + filledCellsCount + " bucati)");
 
     console.log('Total Sum:', totalSum);
     console.log('Filled Cells Count:', filledCellsCount);
