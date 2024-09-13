@@ -56,7 +56,6 @@ $('input').keypress(function(e) {
     console.log('Total Sum:', totalSum);
     console.log('Filled Cells Count:', filledCellsCount);
 
-    // Convert frequencies object to arrays for Chart.js
     var frequencies = computeFrequencies(tableValues);
     createGraph(frequencies);
 
@@ -78,6 +77,7 @@ function computeFrequencies(valuesList) {
 }
 
 function createGraph(frequencies) {
+  // Convert frequencies object to arrays for Chart.js
   var labels = Object.keys(frequencies);
   var counts = Object.values(frequencies);
 
