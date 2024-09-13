@@ -1,0 +1,19 @@
+table {
+    border: none;
+}
+
+td, input {
+    width: 70px;
+    padding: 0;
+  }
+
+/* override styles when printing */
+@media print {
+
+    td, input {
+        width: 70px;
+        padding: 0;
+        border: none;
+    }
+  
+  }
