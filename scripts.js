@@ -116,6 +116,54 @@ $(document).on('input', '#main-table input', function() {
   onlyAllowDigits(this);
 });
 
+// Arrow key navigation for main table
+$(document).on('keydown', '#main-table input', function(e) {
+  // Only handle arrow keys when not in the middle of editing
+  if (e.target !== this) return;
+  
+  var $currentInput = $(this);
+  var $table = $currentInput.closest('#main-table');
+  var currentRow = $currentInput.closest('tr');
+  var currentCol = $currentInput.closest('td').index();
+  var currentRowIndex = currentRow.index();
+  var totalRows = $table.find('tr').length;
+  
+  var $targetInput = null;
+  var shouldMove = false;
+  
+  switch(e.keyCode) {
+    case 38: // Up arrow
+      if (currentRowIndex > 0) {
+        $targetInput = $table.find('tr').eq(currentRowIndex - 1).find('td').eq(currentCol).find('input');
+        shouldMove = true;
+      }
+      break;
+      
+    case 40: // Down arrow
+      if (currentRowIndex < totalRows - 1) {
+        $targetInput = $table.find('tr').eq(currentRowIndex + 1).find('td').eq(currentCol).find('input');
+        shouldMove = true;
+      }
+      break;
+  }
+  
+  if (shouldMove && $targetInput && $targetInput.length) {
+    e.preventDefault();
+    
+    // Focus the target input
+    $targetInput.focus();
+    
+    // If the target cell has content, position cursor at the end
+    var targetValue = $targetInput.val();
+    if (targetValue && targetValue.length > 0) {
+      // Use setTimeout to ensure the input is focused before setting cursor position
+      setTimeout(function() {
+        $targetInput[0].setSelectionRange(targetValue.length, targetValue.length);
+      }, 0);
+    }
+  }
+});
+
 function computeFrequencies(valuesList) {
   var frequencies = {};
   
