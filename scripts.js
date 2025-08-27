@@ -19,10 +19,54 @@ function getTableValues($table) {
   return valuesList;
 }
 
+// Data validation functions
+function validateIntegerEndsIn5Or0(value) {
+  var num = parseInt(value);
+  if (isNaN(num)) {
+    return false;
+  }
+  return num % 5 === 0;
+}
+
+function onlyAllowDigits(input) {
+  // Remove any non-digit characters
+  var cleanValue = input.value.replace(/[^0-9]/g, '');
+  input.value = cleanValue;
+  return cleanValue;
+}
+
+function validateAndProcessInput($input) {
+  var value = $input.val().trim();
+  
+  // Check if value is empty
+  if (value === '') {
+    return true; // Allow empty values
+  }
+  
+  // Check if value ends in 5 or 0
+  if (!validateIntegerEndsIn5Or0(value)) {
+    showMessage('Valoarea trebuie sa se termine in 5 sau 0!', 'error');
+    $input.addClass('invalid-input');
+    setTimeout(function() {
+      $input.removeClass('invalid-input');
+    }, 2000);
+    return false;
+  }
+  
+  return true;
+}
+
 $('input').keypress(function(e) {
   if (e.keyCode == 13) {
-    var $this = $(this),
-      currentRow = $this.closest('tr'),
+    var $this = $(this);
+    
+    // Validate the current input before proceeding
+    if (!validateAndProcessInput($this)) {
+      e.preventDefault();
+      return;
+    }
+    
+    var currentRow = $this.closest('tr'),
       currentIndex = $this.closest('td').index(),
       $table = $this.closest('table'),
       $allRows = $table.find('tr'),
@@ -57,9 +101,6 @@ $('input').keypress(function(e) {
     $total = $('#total');
     $total.text("Total: " + totalSum + " lei (" + filledCellsCount + " bucati)");
 
-    console.log('Total Sum:', totalSum);
-    console.log('Filled Cells Count:', filledCellsCount);
-
     var frequencies = computeFrequencies(tableValues);
     createTable(frequencies);
 
@@ -68,6 +109,11 @@ $('input').keypress(function(e) {
 
     e.preventDefault(); // Prevent the default Enter key action
   }
+});
+
+// Add input event listeners for real-time digit-only validation
+$(document).on('input', '#main-table input', function() {
+  onlyAllowDigits(this);
 });
 
 function computeFrequencies(valuesList) {
