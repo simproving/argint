@@ -1,8 +1,8 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <link rel="stylesheet" href="style.css">
-<table>
+<table id="main-table">
     <tr>
       <td><input></td>
       <td><input></td>
@@ -605,7 +605,9 @@
     </tr>
   </table>
   <p id="total"></p>
-  <canvas id="ctx" style="width:100%;max-width:700px;max-height: 240px;"></canvas>
+  <div id="frequency-table-container"></div>
+  <button id="clear-btn" class="control-btn clear-btn">Reset</button>
+  
 
   <script src="scripts.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/simproving/utils@latest/homeButton.js"></script>

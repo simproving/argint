@@ -1,4 +1,23 @@
-var chartInstance = null;
+
+
+// Global function to get table values
+function getTableValues($table) {
+  var valuesList = [];
+  
+  if (!$table) {
+    $table = $('table').first(); // Default to first table if none specified
+  }
+  
+  $table.find('td').each(function() {
+    var $input = $(this).find('input'); // Find the input within the cell
+    var cellValue = parseFloat($input.val().trim()); // Get the value, trim spaces, and convert to number
+    if (!isNaN(cellValue)) {
+      valuesList.push(cellValue);
+    }
+  });
+
+  return valuesList;
+}
 
 $('input').keypress(function(e) {
   if (e.keyCode == 13) {
@@ -8,21 +27,6 @@ $('input').keypress(function(e) {
       $table = $this.closest('table'),
       $allRows = $table.find('tr'),
       lastRowIndex = $allRows.length - 1;
-
-    // Function to calculate sum and count filled cells
-    function getTableValues() {
-      var valuesList = [];
-    
-      $table.find('td').each(function() {
-        var $input = $(this).find('input'); // Find the input within the cell
-        var cellValue = parseFloat($input.val().trim()); // Get the value, trim spaces, and convert to number
-        if (!isNaN(cellValue)) {
-          valuesList.push(cellValue);
-        }
-      });
-
-      return valuesList;
-    }
 
     // Check if the current row is the last row 
     if (currentRow.index() === lastRowIndex) {
@@ -45,7 +49,7 @@ $('input').keypress(function(e) {
       }
     }
 
-    var tableValues = getTableValues();
+    var tableValues = getTableValues($table);
 
     // Recalculate the sum and count filled cells
     var totalSum = tableValues.reduce((sum, value) => sum + value, 0);
@@ -57,7 +61,10 @@ $('input').keypress(function(e) {
     console.log('Filled Cells Count:', filledCellsCount);
 
     var frequencies = computeFrequencies(tableValues);
-    createGraph(frequencies);
+    createTable(frequencies);
+
+    // Auto-save data on every Enter press
+    autoSaveTableData();
 
     e.preventDefault(); // Prevent the default Enter key action
   }
@@ -76,33 +83,137 @@ function computeFrequencies(valuesList) {
   return frequencies;
 }
 
-function createGraph(frequencies) {
-  // Convert frequencies object to arrays for Chart.js
+function createTable(frequencies) {
+  // Convert frequencies object to arrays for table
   var labels = Object.keys(frequencies);
   var counts = Object.values(frequencies);
 
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-
-  chartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Frecventa preturi',
-        data: counts,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
+  // Sort by price (ascending)
+  labels.sort(function(a, b) { return parseFloat(a) - parseFloat(b); });
+  
+  // Calculate how many columns we need
+  var maxRows = 8;
+  var totalItems = labels.length;
+  var numColumns = Math.ceil(totalItems / maxRows);
+  
+  // Create table HTML
+  var tableHTML = '<table id="frequency-table">';
+  tableHTML += '<tbody>';
+  
+  // Create data rows
+  for (var row = 0; row < maxRows; row++) {
+    tableHTML += '<tr>';
+    
+    // Add cells for each column
+    for (var col = 0; col < numColumns; col++) {
+      var index = row + (col * maxRows);
+      if (index < totalItems) {
+        tableHTML += '<td>' + labels[index] + '</td>';
+        tableHTML += '<td>' + frequencies[labels[index]] + '</td>';
+      } else {
+        // Empty cells for incomplete columns
+        tableHTML += '<td></td><td></td>';
       }
     }
-  });
+    
+    tableHTML += '</tr>';
+  }
+  
+  tableHTML += '</tbody></table>';
+  
+  // Update the container
+  $('#frequency-table-container').html(tableHTML);
 }
+
+// Auto-save function (called on every Enter press)
+function autoSaveTableData() {
+  var tableData = [];
+  $('table tr').each(function() {
+    var rowData = [];
+    $(this).find('td input').each(function() {
+      rowData.push($(this).val() || '');
+    });
+    tableData.push(rowData);
+  });
+  
+  // Save to localStorage
+  localStorage.setItem('argintTableData', JSON.stringify(tableData));
+}
+
+function loadTableData() {
+  var savedData = localStorage.getItem('argintTableData');
+  if (savedData) {
+    try {
+      var tableData = JSON.parse(savedData);
+      
+      // Restore table data
+      $('table tr').each(function(rowIndex) {
+        if (tableData[rowIndex]) {
+          $(this).find('td input').each(function(colIndex) {
+            if (tableData[rowIndex][colIndex]) {
+              $(this).val(tableData[rowIndex][colIndex]);
+            }
+          });
+        }
+      });
+      
+      // Recalculate totals and frequencies
+      var tableValues = getTableValues($('table').first());
+      var totalSum = tableValues.reduce((sum, value) => sum + value, 0);
+      var filledCellsCount = tableValues.length;
+      $('#total').text("Total: " + totalSum + " lei (" + filledCellsCount + " bucati)");
+      
+      var frequencies = computeFrequencies(tableValues);
+      createTable(frequencies);
+      
+      showMessage('Datele au fost incarcate cu succes!', 'success');
+    } catch (e) {
+      showMessage('Eroare la incarcarea datelor salvate', 'error');
+    }
+  } else {
+    showMessage('Nu s-au gasit date salvate', 'info');
+  }
+}
+
+function clearTableData() {
+  if (confirm('Sigur doriti sa stergeti toate datele? Aceasta actiune nu poate fi anulata.')) {
+    // Clear all input fields
+    $('table input').val('');
+    
+    // Clear localStorage
+    localStorage.removeItem('argintTableData');
+    
+    // Reset totals and frequency table
+    $('#total').text("Total: 0 lei (0 bucati)");
+    $('#frequency-table-container').empty();
+    
+    showMessage('Datele din tabel au fost sterse', 'info');
+  }
+}
+
+function showMessage(message, type) {
+  // Remove existing message
+  $('.message').remove();
+  
+  // Create message element
+  var messageHtml = '<div class="message message-' + type + '">' + message + '</div>';
+  $('body').append(messageHtml);
+  
+  // Auto-remove after 3 seconds
+  setTimeout(function() {
+    $('.message').fadeOut(500, function() {
+      $(this).remove();
+    });
+  }, 3000);
+}
+
+// Load saved data when page loads
+$(document).ready(function() {
+  // Add event listener for clear button
+  $('#clear-btn').click(clearTableData);
+  
+  // Auto-load saved data if available
+  if (localStorage.getItem('argintTableData')) {
+    loadTableData();
+  }
+});

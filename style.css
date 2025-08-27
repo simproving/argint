@@ -14,7 +14,8 @@ td, input {
 
   }
 
-table tr::before {
+/* Main input table row numbering - exclude frequency table */
+table:not(#frequency-table) tr::before {
     display: table-cell;
     counter-increment: rowNumber;
     content: counter(rowNumber) ".";
@@ -30,7 +31,7 @@ table tr::before {
         padding: 0;
         border: none;
     }
-    table tr::before {
+    table:not(#frequency-table) tr::before {
         display: none;
     }
 
@@ -42,5 +43,102 @@ table tr::before {
         padding-top: 30px;
        
     }
+    
+    /* Hide reset button when printing */
+    .clear-btn {
+        display: none !important;
+    }
   
   }
+
+/* Frequency table styles */
+#frequency-table {
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    margin-top: 10px;
+    width: 700px;
+    max-width: 700px;
+}
+
+#frequency-table th,
+#frequency-table td {
+    border: 1px solid #ddd;
+    padding: 2px 4px;
+    text-align: center;
+    min-width: 60px;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+
+#frequency-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#frequency-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+/* Multi-column layout adjustments */
+#frequency-table td:nth-child(2n) {
+    border-right: 2px solid #999;
+}
+
+/* Message notifications */
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease-out;
+}
+
+.message-success {
+    background: linear-gradient(135deg, #4caf50, #45a049);
+}
+
+.message-error {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+.message-info {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.control-btn {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clear-btn {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+}
+
+.clear-btn:hover {
+  background: linear-gradient(135deg, #d32f2f, #c62828);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
