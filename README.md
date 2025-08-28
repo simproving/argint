@@ -15,7 +15,7 @@ Argint is a web-based tool designed for Romanian jewelry businesses and collecto
 ## Features
 
 ### ✅ Implemented Features
-- **Grid Input System**: 10x50 table for entering values
+- **Grid Input System**: 50x10 table for entering values
 - **Input Validation**: Only accepts values ending in 5 or 0
 - **Real-time Calculations**: Automatic total sum and count updates
 - **Frequency Analysis**: Generates frequency tables showing value distribution
